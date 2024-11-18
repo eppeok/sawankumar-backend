@@ -2,7 +2,7 @@ const config = require("../config");
 const axios = require("axios");
 
 const headers = {
-  Authorization: `Bearer pit-2863e592-02f4-43a4-afd6-f0bf1b943681`, // Removed extra space
+  Authorization: `Bearer ${config.ghlAccessToken}`, // Removed extra space
   "Content-Type": "application/json",
   Version: "2021-07-28",
 };
@@ -14,31 +14,85 @@ const demoRequest = async (req, res) => {
 
 const createContact = async (req, res) => {
   try {
-    const { phone, email, fullName, tags = [] } = req.body;
+    const { email, phone, fullName, tags = [] } = req.body;
 
-    //create new contact
-    const response = await axios.post(
-      "https://services.leadconnectorhq.com/contacts",
-      {
-        name: fullName,
-        email: email,
-        locationId: "dsWjBGIxUq1LzZXzCB9c",
-        phone,
-        address1: "",
-        // website: "http://localhost:3000/canvaMastery", // add the path of the website
-        timezone: "Asia/Calcutta",
-        country: "IN",
-        companyName: "",
-        tags: tags,
-      },
+    // Check by email
+    const emailResponse = await axios.get(
+      `https://services.leadconnectorhq.com/contacts/?locationId=dsWjBGIxUq1LzZXzCB9c&limit=10&query=${email}`,
       {
         headers: { ...headers },
       }
     );
-    res.status(200).json(response.data.contact);
+    const emailExists = emailResponse.data.contacts.length > 0;
+    const emailContact = emailExists ? emailResponse.data.contacts?.[0] : null;
+
+    // Check by phone
+    const phoneResponse = await axios.get(
+      `https://services.leadconnectorhq.com/contacts/?locationId=dsWjBGIxUq1LzZXzCB9c&limit=10&query=%2B91${phone}`,
+      {
+        headers: { ...headers },
+      }
+    );
+    const phoneExists = phoneResponse.data.contacts.length > 0;
+    const phoneContact = phoneExists ? phoneResponse.data.contacts?.[0] : null;
+
+    if (emailExists && phoneExists) {
+      if (emailContact.id === phoneContact.id) {
+        return res.send({
+          message: "Both email and phone exist and belong to the same contact",
+        });
+      } else {
+        return res.send({ message: "Both email and phone exist" });
+      }
+    } else if (emailExists && !phoneExists) {
+      // Update contact with phone number
+      await axios.put(
+        `https://services.leadconnectorhq.com/contacts/${emailContact.id}`,
+        { phone, name: fullName },
+        {
+          headers: { ...headers },
+        }
+      );
+      return res.send({ message: "Updated contact with phone number" });
+    } else if (!emailExists && phoneExists) {
+      // Update contact with email
+      await axios.put(
+        `https://services.leadconnectorhq.com/contacts/${phoneContact.id}`,
+        { email, name: fullName },
+        {
+          headers: { ...headers },
+        }
+      );
+      return res.send({ message: "Updated contact with email" });
+    } else {
+      // Insert new contact
+      const response = await axios.post(
+        "https://services.leadconnectorhq.com/contacts",
+        {
+          name: fullName,
+          email: email,
+          locationId: "dsWjBGIxUq1LzZXzCB9c",
+          phone,
+          address1: "",
+          timezone: "Asia/Calcutta",
+          country: "IN",
+          companyName: "",
+          tags: tags,
+        },
+        {
+          headers: { ...headers },
+        }
+      );
+      return res.send({
+        message: "New contact inserted",
+        contact: response.data.contact,
+      });
+    }
   } catch (error) {
-    console.error("Error while creating contact:", error);
-    res.status(500).json({ error: "Error while creating contact" });
+    console.log("Error while checking if contact exists:", error);
+    return res
+      .status(500)
+      .send({ error: "Error while checking if contact exists" });
   }
 };
 

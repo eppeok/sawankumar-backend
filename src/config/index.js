@@ -13,4 +13,5 @@ module.exports = {
   encryptSecret: process.env.ENCRYPT_SECRET || "",
   gmailAppPassword: process.env.GMAIL_APP_PASSWORD || "",
   gmailEmail: process.env.GMAIL_EMAIL || "",
+  ghlAccessToken: process.env.GHL_ACCESS_TOKEN || "",
 };
