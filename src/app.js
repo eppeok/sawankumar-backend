@@ -57,7 +57,7 @@ app.get('/uploaded/images', (req, res) => {
 });
 // Routes
 app.get("/", (req, res) => {
-  res.send("Welcome to the API!");
+  res.send("Welcome to the API! 222");
 });
 
 app.use("/contact", canvaMastery);
