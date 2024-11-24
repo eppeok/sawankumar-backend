@@ -46,24 +46,30 @@ const createContact = async (req, res) => {
       }
     } else if (emailExists && !phoneExists) {
       // Update contact with phone number
-      await axios.put(
+      const response = await axios.put(
         `https://services.leadconnectorhq.com/contacts/${emailContact.id}`,
         { phone, name: fullName },
         {
           headers: { ...headers },
         }
       );
-      return res.send({ message: "Updated contact with phone number" });
+      return res.send({
+        message: "Updated contact with phone number",
+        contact: response.data.contact,
+      });
     } else if (!emailExists && phoneExists) {
       // Update contact with email
-      await axios.put(
+      const response =  await axios.put(
         `https://services.leadconnectorhq.com/contacts/${phoneContact.id}`,
         { email, name: fullName },
         {
           headers: { ...headers },
         }
       );
-      return res.send({ message: "Updated contact with email" });
+      return res.send({
+        message: "Updated contact with email",
+        contact: response.data.contact,
+      });
     } else {
       // Insert new contact
       const response = await axios.post(
