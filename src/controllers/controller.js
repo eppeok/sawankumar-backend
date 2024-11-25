@@ -60,7 +60,7 @@ const createContact = async (req, res) => {
       });
     } else if (!emailExists && phoneExists) {
       // Update contact with email
-      const response =  await axios.put(
+      const response = await axios.put(
         `https://services.leadconnectorhq.com/contacts/${phoneContact.id}`,
         { email, name: fullName },
         {
@@ -99,7 +99,7 @@ const createContact = async (req, res) => {
     console.log("Error while checking if contact exists:", error);
     return res
       .status(500)
-      .send({ error: "Error while checking if contact exists" });
+      .send({ error: "Error while checking if contact exists", info: error });
   }
 };
 
