@@ -1,6 +1,6 @@
 const express = require("express");
 const Controller = require("../controllers/controller");
-const Course = require("../models/Course");
+const Course = require("../models/course");
 const router = express.Router();
 
 // Get course by slug
