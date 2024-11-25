@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({
   credentials: true,
-  origin: "*",
+  origin: ["http://localhost:3000", "http://your-frontend-domain.com"], // Add your allowed origins here
 }));
 
 // Serve static files

@@ -23,7 +23,7 @@ router.post('/single',
       res.json({
         success: true,
         message: 'File uploaded successfully',
-        fileUrl: fileUrl,
+        path: fileUrl,
         file: {
           filename: req.file.filename,
           mimetype: req.file.mimetype,
@@ -58,7 +58,7 @@ router.post('/multiple',
       res.json({
         success: true,
         message: 'Files uploaded successfully',
-        fileUrls: fileUrls,
+        path: fileUrls,
         files: req.files.map(file => ({
           filename: file.filename,
           mimetype: file.mimetype,
