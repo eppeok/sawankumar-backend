@@ -6,7 +6,7 @@ dotenv.config();
 
 const mongoDB_URI =
   process.env.MONGODB_URI ||
-  "mongodb+srv://admin:Evolv@109@sawankumar.xxce6.mongodb.net/";
+  "mongodb+srv://admin:evolv%40109@sawankumar.xxce6.mongodb.net/sawanKumar";
 
 const connectDB = async () => {
   try {
