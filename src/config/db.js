@@ -4,9 +4,7 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
-const mongoDB_URI =
-  process.env.MONGODB_URI ||
-  "mongodb+srv://admin:evolv%40109@sawankumar.xxce6.mongodb.net/sawanKumar";
+const mongoDB_URI = process.env.MONGODB_URI;
 
 const connectDB = async () => {
   try {
