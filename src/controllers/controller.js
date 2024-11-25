@@ -40,6 +40,7 @@ const createContact = async (req, res) => {
       if (emailContact.id === phoneContact.id) {
         return res.send({
           message: "Both email and phone exist and belong to the same contact",
+          contact: emailContact,
         });
       } else {
         return res.send({ message: "Both email and phone exist" });

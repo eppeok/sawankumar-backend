@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({
   credentials: true,
-  origin: ["http://localhost:3000", "http://your-frontend-domain.com"], // Add your allowed origins here
+  origin: ["http://localhost:3000", "https://orca-app-2-8s6zq.ondigitalocean.app/"], // Add your allowed origins here
 }));
 
 // Serve static files
@@ -57,7 +57,7 @@ app.get('/uploaded/images', (req, res) => {
 });
 // Routes
 app.get("/", (req, res) => {
-  res.send("Welcome to the API! 222");
+  res.send("Welcome to the API!");
 });
 
 app.use("/contact", canvaMastery);

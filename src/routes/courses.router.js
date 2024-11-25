@@ -103,15 +103,24 @@ router.put("/update/:id", async (req, res) => {
 });
 
 // Delete course by slug
-router.delete('/:slug', async (req, res) => {
-    try {
-        const course = await Course.findOneAndDelete({ slug: req.params.slug });
+router.delete("/:slug", async (req, res) => {
+  try {
+    const course = await Course.findOneAndDelete({ slug: req.params.slug });
 
-        if (!course) {
-            return res.status(404).json({ success: false, message: 'Course not found' });
-        }
+    if (!course) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Course not found" });
+    }
+    const courses = await Course.find({})
+      .select({
+        name: 1,
+        slug: 1,
+        _id: 1,
+      })
+      .lean();
 
-    res.status(200).json({ success: true, data: {} });
+    res.status(200).json({ success: true, data: courses });
   } catch (error) {
     res.status(400).json({
       success: false,
