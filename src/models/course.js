@@ -49,16 +49,6 @@ const courseSchema = new Schema(
       ],
     },
 
-    featuresSection: {
-      title: { type: String, required: true },
-      features: [
-        {
-          icon: { type: String, required: true },
-          text: { type: String, required: true },
-        },
-      ],
-    },
-
     companyLogosSection: {
       title: { type: String, required: true },
       companies: [
@@ -81,9 +71,13 @@ const courseSchema = new Schema(
           title: { type: String, required: true },
           lectures: { type: String, required: true },
           duration: { type: String, required: true },
-          content: { type: String },
-        },
-      ],
+          content: [{
+            type: { type: String, required: true },
+            content: { type: String, required: true },
+            duration: { type: String, required: true }
+          }]
+        }
+      ]
     },
 
     requirementsSection: {
