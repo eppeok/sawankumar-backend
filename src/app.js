@@ -3,7 +3,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const path = require('path');
+const path = require("path");
 const { connectDB } = require("./config/db");
 const fs = require('fs');
 
@@ -40,11 +40,11 @@ app.get('/uploaded/images', (req, res) => {
           });
       }
 
-      // Filter out any non-image files (optional)
-      const imageFiles = files.filter(file => {
-          const ext = path.extname(file).toLowerCase();
-          return ['.jpg', '.jpeg', '.png', '.gif'].includes(ext);
-      });
+    // Filter out any non-image files (optional)
+    const imageFiles = files.filter((file) => {
+      const ext = path.extname(file).toLowerCase();
+      return [".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp"].includes(ext);
+    });
 
       res.json({
           images: imageFiles.map(file => ({
@@ -56,7 +56,7 @@ app.get('/uploaded/images', (req, res) => {
 });
 // Routes
 app.get("/", (req, res) => {
-  res.send("Welcome to the API! 30");
+  res.send("Welcome to the API!");
 });
 
 app.use("/contact", canvaMastery);
