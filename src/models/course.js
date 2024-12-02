@@ -4,6 +4,11 @@ const { Schema } = mongoose;
 const courseSchema = new Schema(
   {
     name: { type: String, required: true },
+    metadata:{
+      title: { type: String, required: true },
+      description: { type: String, required: true },
+      keywords: { type: String, required: true },
+    },
     tags: {
       beforePaymentTags: [
         {
@@ -36,6 +41,7 @@ const courseSchema = new Schema(
           text: { type: String, required: true },
         },
       ],
+      iframeHtml: { type: String, required: true },
     },
 
     learningSection: {
@@ -138,17 +144,16 @@ const courseSchema = new Schema(
         highlight2: { type: String, required: true },
         amount: { type: String, required: true },
       },
+      mockupImage: { type: String, required: true },
       carouselItems: [
         {
           id: { type: Number, required: true },
           title: { type: String, required: true },
-          mockupImage: { type: String, required: true },
           color: { type: String, required: true },
           courses: [{ type: String, required: true }],
         },
       ],
     },
-
     counterSection: {
       title: {
         main: { type: String, required: true },
