@@ -7,9 +7,9 @@ const { handleUploadError } = require("../middleware/uploadMiddleware");
 const cloudinary = require("cloudinary").v2;
 
 cloudinary.config({
-  cloud_name: "dyljwyytr",
-  api_key: "189479382335773",
-  api_secret: "rL_4jo9vi2mt-CJc_jmPg6ePzL8",
+  cloud_name: "duwxuhvn2",
+  api_key: "576673113496659",
+  api_secret: "dbiZaKWhzU5H2C_7CR7GrOYa8fU",
 });
 
 // // Single file upload route -- npt needed
