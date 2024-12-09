@@ -58,7 +58,7 @@ app.get('/uploaded/images', (req, res) => {
 });
 // Routes
 app.get("/", (req, res) => {
-  res.send("Welcome to the API! - Useer and cards");
+  res.send("Welcome to the API! - course");
 });
 
 app.use("/user", UserRouter);

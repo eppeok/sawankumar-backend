@@ -5,10 +5,10 @@ const coursesCardSchema = new mongoose.Schema({
   description: { type: String },
   image: { type: String },
   link: { type: String },
-  price: { type: String, default: "Free" },
-  rating: { type: Number, default: 0 },
-  reviewsCount: { type: Number, default: 0 },
-  badges: { type: [String], default: [] },
+  price: { type: String },
+  rating: { type: Number },
+  reviewsCount: { type: Number },
+  badges: { type: [String] },
 });
 
 
