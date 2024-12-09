@@ -8,9 +8,11 @@ const { connectDB } = require("./config/db");
 const fs = require('fs');
 
 // Import routes
+const UserRouter = require("./routes/user.router");
 const canvaMastery = require("./routes/canvaMastery.contact.router");
 const coursesRouter = require("./routes/courses.router");
 const uploadRouter = require("./routes/upload.router");
+const courseCardsRouter = require('./routes/courseCards');
 
 const app = express();
 
@@ -56,11 +58,12 @@ app.get('/uploaded/images', (req, res) => {
 });
 // Routes
 app.get("/", (req, res) => {
-  res.send("Welcome to the API!");
+  res.send("Welcome to the API! - Useer and cards");
 });
 
+app.use("/user", UserRouter);
 app.use("/contact", canvaMastery);
 app.use("/courses", coursesRouter);
 app.use("/upload", uploadRouter);
-
+app.use('/courseCards', courseCardsRouter);
 module.exports = app;
