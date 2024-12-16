@@ -15,6 +15,7 @@ const canvaMastery = require("./routes/canvaMastery.contact.router");
 const coursesRouter = require("./routes/courses.router");
 const uploadRouter = require("./routes/upload.router");
 const courseCardsRouter = require("./routes/courseCards");
+const sitemapRouter = require("./routes/sitemap");
 
 const app = express();
 
@@ -76,6 +77,7 @@ app.use("/contact", canvaMastery);
 app.use("/courses", coursesRouter);
 app.use("/upload", uploadRouter);
 app.use("/courseCards", courseCardsRouter);
+app.use("/sitemap", sitemapRouter);
 
 // Utility to hash user data
 const hashData = (data) => {
