@@ -35,6 +35,7 @@ const courseSchema = new Schema(
       hoursLeft: { type: Number, required: true },
       studentCount: { type: String, required: true },
       rating: { type: String, required: true },
+      reviewCount: { type: String, required: true },
       courseIncludes: [
         {
           icon: { type: String, required: true },
