@@ -6,7 +6,7 @@ const config = require("../config");
 const auth = async (req, res, next) => {
   try {
     // Get token from request header and remove "bearer " prefix if present
-    const token = req.header("x-access-token")?.replace("bearer ", "");
+    const token = req.header("authentication")?.replace("bearer ", "");
 
     if (!token) {
       throw new Error("Token should be provided in the header of the request.");
