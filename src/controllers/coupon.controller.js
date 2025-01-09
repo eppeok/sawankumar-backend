@@ -90,7 +90,7 @@ const getCoursesForCoupon = async (req, res) => {
 
 const verifyCoupon = async (req, res) => {
   try {
-    const { couponCode, courseId } = req.body;
+    const { couponCode, courseSlug } = req.body;
     const coupon = await Coupon.findOne({ couponCode });
 
     if (!coupon) {
@@ -111,8 +111,12 @@ const verifyCoupon = async (req, res) => {
         .json({ success: false, message: "Coupon has expired" });
     }
 
+    const courseData = await Course.findOne({ slug: courseSlug }).select({
+      _id: 1,
+    });
+
     const isCourseValid = coupon.courses.find(
-      (course) => course.value.toString() === courseId
+      (course) => course.value.toString() === courseData._id.toString()
     );
     if (!isCourseValid) {
       return res.status(400).json({
