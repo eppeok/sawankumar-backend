@@ -131,6 +131,31 @@ const verifyCoupon = async (req, res) => {
   }
 };
 
+
+const checkCouponCodeExists = async (req, res) => {
+  try {
+    const { couponCode } = req.body;
+    const existingCoupon = await Coupon.findOne({ couponCode });
+
+    if (existingCoupon) {
+      return res.status(409).json({
+        success: false,
+        message: "Coupon code already exists"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Coupon code is available"
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   createCoupon,
   getCoupons,
@@ -139,4 +164,5 @@ module.exports = {
   deleteCoupon,
   getCoursesForCoupon,
   verifyCoupon,
+  checkCouponCodeExists
 };
