@@ -17,6 +17,7 @@ const uploadRouter = require("./routes/upload.router");
 const courseCardsRouter = require("./routes/courseCards");
 const sitemapRouter = require("./routes/sitemap");
 const couponsRouter = require("./routes/coupon.router");
+const customerRouter = require("./routes/customer.router");
 
 const app = express();
 
@@ -80,6 +81,7 @@ app.use("/upload", uploadRouter);
 app.use("/courseCards", courseCardsRouter);
 app.use("/sitemap", sitemapRouter);
 app.use("/coupons", couponsRouter);
+app.use("/customer", customerRouter);
 
 // Utility to hash user data
 const hashData = (data) => {

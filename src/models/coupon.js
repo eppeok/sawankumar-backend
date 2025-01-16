@@ -12,6 +12,7 @@ const couponSchema = new mongoose.Schema({
     endDate: { type: Date, required: true },
     couponType: { type: String, required: true },
     value: { type: Number, required: true },
+    maxUsage: { type: Number, required: true },
     courses: [courseSchema]
 });
 
