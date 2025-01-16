@@ -20,7 +20,7 @@ const insertContact = async (req, res) => {
       // Update the existing customer's contact info
       customer.name = name;
       customer.phone = phone;
-      customer.phone = email;
+      customer.email = email;
       await customer.save();
       return res.status(200).json({ message: "Customer contact information updated successfully" });
     }
