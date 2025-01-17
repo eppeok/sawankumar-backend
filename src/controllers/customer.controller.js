@@ -1,4 +1,4 @@
-const Customer = require('../models/customer');
+const Customer = require("../models/customer");
 
 // Function to insert customer contact information and handle coupon usage
 const insertContact = async (req, res) => {
@@ -6,7 +6,9 @@ const insertContact = async (req, res) => {
 
   try {
     // Check if customer already exists by email or phone
-    let customer = await Customer.findOne({ $or: [{ email }, { phone }] });
+    let customer = await Customer.findOne({
+      $or: [{ email: email ? email.toLowerCase() : null }, { phone }],
+    });
     if (customer) {
       // If the customer exists and couponCode is provided, increment coupon usage
       if (couponCode) {
@@ -22,7 +24,9 @@ const insertContact = async (req, res) => {
       customer.phone = phone;
       customer.email = email;
       await customer.save();
-      return res.status(200).json({ message: "Customer contact information updated successfully" });
+      return res
+        .status(200)
+        .json({ message: "Customer contact information updated successfully" });
     }
 
     // If customer does not exist, create a new customer with the contact details and coupon code
@@ -34,7 +38,9 @@ const insertContact = async (req, res) => {
     });
 
     await newCustomer.save();
-    res.status(201).json({ message: "Customer contact information added successfully" });
+    res
+      .status(201)
+      .json({ message: "Customer contact information added successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }

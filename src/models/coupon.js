@@ -1,11 +1,12 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const courseSchema = new mongoose.Schema({
-    label: { type: String, required: true },
-    value: { type: String, required: true }
+  label: { type: String, required: true },
+  value: { type: String, required: true },
 });
 
-const couponSchema = new mongoose.Schema({
+const couponSchema = new mongoose.Schema(
+  {
     couponName: { type: String, required: true },
     couponCode: { type: String, required: true, unique: true },
     startDate: { type: Date, required: true },
@@ -13,9 +14,13 @@ const couponSchema = new mongoose.Schema({
     couponType: { type: String, required: true },
     value: { type: Number, required: true },
     maxUsage: { type: mongoose.Schema.Types.Mixed, required: true },
-    courses: [courseSchema]
-});
+    courses: [courseSchema],
+  },
+  {
+    timestamps: true,
+  }
+);
 
-const Coupon = mongoose.model('Coupon', couponSchema);
+const Coupon = mongoose.model("Coupon", couponSchema);
 
 module.exports = Coupon;
