@@ -1,5 +1,6 @@
 const Coupon = require("../models/coupon");
 const Course = require("../models/course");
+const Customer = require("../models/customer");
 
 const createCoupon = async (req, res) => {
   try {
@@ -90,7 +91,7 @@ const getCoursesForCoupon = async (req, res) => {
 
 const verifyCoupon = async (req, res) => {
   try {
-    const { couponCode, courseSlug } = req.body;
+    const { couponCode, courseSlug, userData = "" } = req.body;
     const coupon = await Coupon.findOne({ couponCode });
 
     if (!coupon) {
@@ -125,12 +126,25 @@ const verifyCoupon = async (req, res) => {
       });
     }
 
+    if (userData !== "") {
+      const { email, phone } = userData;
+      const customer = await Customer.findOne({ $or: [{ email }, { phone }] });
+      if (customer) {
+        const couponUsageCount = customer.coupons.get(couponCode) || 0;
+        if (coupon.maxUsage !== 'unlimited' && couponUsageCount >= Number(coupon.maxUsage)) {
+          return res.status(400).json({
+            success: false,
+            message: "Coupon is inValid",
+          });
+        }
+      }
+    }
+
     res.status(200).json({ success: true, message: "Coupon is valid", coupon });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
 const checkCouponCodeExists = async (req, res) => {
   try {
@@ -140,18 +154,18 @@ const checkCouponCodeExists = async (req, res) => {
     if (existingCoupon) {
       return res.status(409).json({
         success: false,
-        message: "Coupon code already exists"
+        message: "Coupon code already exists",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Coupon code is available"
+      message: "Coupon code is available",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -164,5 +178,5 @@ module.exports = {
   deleteCoupon,
   getCoursesForCoupon,
   verifyCoupon,
-  checkCouponCodeExists
+  checkCouponCodeExists,
 };
