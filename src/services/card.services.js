@@ -8,7 +8,7 @@ const newCardCreation = async (courseData, courseId) => {
       image: courseData.heroSection.courseImage,
       link: `https://sawankr.com/courses/${courseData.slug}`,
       price: courseData.heroSection.price,
-      originalPrice: courseData .heroSection.originalPrice,
+      originalPrice: courseData.heroSection.originalPrice,
       rating: courseData.heroSection.rating,
       reviewsCount: Number(courseData.heroSection.reviewCount || 0),
       totalSections: courseData.courseContentSection.summary.totalSections,
@@ -43,7 +43,7 @@ const updateExistingCard = async (newcourseData, courseId) => {
     );
 
     if (!updatedCard) {
-      throw new Error("Card not found");
+      console.log("Card not foung");
     }
     return updatedCard;
   } catch (error) {
@@ -55,7 +55,7 @@ const deleteCard = async (courseId) => {
   try {
     const deletedCard = await CourseCard.findOneAndDelete({ courseId });
     if (!deletedCard) {
-      throw new Error("Card not found");
+      console.log("Card not foung");
     }
     return deletedCard;
   } catch (error) {
