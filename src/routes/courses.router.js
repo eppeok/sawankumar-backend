@@ -1,7 +1,10 @@
 const express = require("express");
 const Controller = require("../controllers/controller");
 const Course = require("../models/course");
+const CourseCard = require("../models/courseCards");
 const router = express.Router();
+const CadrdService = require("../services/card.services");
+const { COURSE_STATUS } = require("../constant/courseStatus");
 
 // Get course by slug
 router.get("/getCourses", async (req, res) => {
@@ -48,6 +51,12 @@ router.post("/create", async (req, res) => {
   try {
     const course = new Course(req.body);
     await course.save();
+
+    if (course.status === COURSE_STATUS.PUBLISH) {
+      // createt linking course card
+      await CadrdService.newCardCreation(req.body, course._id);
+    }
+
     res.status(201).json({ success: true, data: course });
   } catch (error) {
     res.status(400).json({
@@ -81,8 +90,7 @@ router.put("/:slug", async (req, res) => {
 });
 router.put("/update/:id", async (req, res) => {
   try {
-
-    const course =  await Course.findOneAndUpdate(
+    const course = await Course.findOneAndUpdate(
       { _id: req.params.id },
       req.body.body,
       { new: true, runValidators: true }
@@ -93,6 +101,20 @@ router.put("/update/:id", async (req, res) => {
         .status(404)
         .json({ success: false, message: "Course not found" });
     }
+
+    if (req.body.body.status === COURSE_STATUS.PUBLISH) {
+      const findCourseCard = await CourseCard.findOne({ courseId: course._id });
+      if(findCourseCard){
+        // handle course card functionlity
+        CadrdService.updateExistingCard(course, course._id);
+      }else{
+        CadrdService.newCardCreation(course, course._id)
+      }
+    } else {
+      // if the status change to save as draft then delete the card which is connected
+      await CadrdService.deleteCard(course._id);
+    }
+
     res.status(200).json({ success: true, data: course });
   } catch (error) {
     res.status(400).json({
@@ -105,13 +127,20 @@ router.put("/update/:id", async (req, res) => {
 // Delete course by slug
 router.delete("/:slug", async (req, res) => {
   try {
-    const course = await Course.findOneAndDelete({ slug: req.params.slug });
+    const course = await Course.findOneAndDelete(
+      { slug: req.params.slug },
+      { returnDocument: "before" }
+    );
 
     if (!course) {
       return res
         .status(404)
         .json({ success: false, message: "Course not found" });
     }
+
+    // if the linking card availbale then delete it
+    await CadrdService.deleteCard(course._id);
+
     const courses = await Course.find({})
       .select({
         name: 1,
@@ -148,6 +177,9 @@ router.post("/duplicate/:id", async (req, res) => {
       _id: undefined, // Remove _id to create new document
       name: `${originalCourse.name} - Duplicate`,
       slug: `${originalCourse.slug}-duplicate-${Date.now()}`,
+      status: originalCourse.status
+        ? originalCourse.status
+        : COURSE_STATUS.DRAFT,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -155,6 +187,10 @@ router.post("/duplicate/:id", async (req, res) => {
     // Create new course
     const newCourse = new Course(duplicatedCourse);
     await newCourse.save();
+
+    if (duplicatedCourse.status === COURSE_STATUS.PUBLISH) {
+      await CadrdService.newCardCreation(newCourse, newCourse._id);
+    }
 
     // Return only selected fields
     const selectedFields = {

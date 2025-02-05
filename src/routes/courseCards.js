@@ -24,6 +24,7 @@ router.post("/demo", async (req, res) => {
       rating: 5,
       reviewsCount: 100,
       badges: ["Demo", "Test"],
+      courseId:''
     });
     await demoCourseCard.save();
     res.status(201).send(demoCourseCard);

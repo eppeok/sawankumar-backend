@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const courseSchema = new Schema(
   {
     name: { type: String, required: true },
-    metadata:{
+    metadata: {
       title: { type: String, required: true },
       description: { type: String, required: true },
       keywords: { type: String, required: true },
@@ -22,6 +22,7 @@ const courseSchema = new Schema(
       ],
     },
     slug: { type: String, required: true, unique: true },
+    status: { type: String, required: true },
     heroSection: {
       courseImage: { type: String, required: true },
       titleSm: { type: String, required: true },
@@ -78,13 +79,15 @@ const courseSchema = new Schema(
           title: { type: String, required: true },
           lectures: { type: String, required: true },
           duration: { type: String, required: true },
-          content: [{
-            type: { type: String, required: true },
-            content: { type: String, required: true },
-            duration: { type: String, required: true }
-          }]
-        }
-      ]
+          content: [
+            {
+              type: { type: String, required: true },
+              content: { type: String, required: true },
+              duration: { type: String, required: true },
+            },
+          ],
+        },
+      ],
     },
 
     requirementsSection: {
