@@ -1,11 +1,5 @@
-# sawankumar backend
+# OAuth Authentication Flow Demo
 
-how to start backend
+This repository is for references purposes for developers looking to implement GHL Oauth Authentication or use GHL APIs.
 
-Run command : npm run dev
-
-as for ENV
-here is the format
-
-MONGODB_URI=""
-GHL_ACCESS_TOKEN = ""
+[Loom Demo](https://www.loom.com/share/61fbbc8cd0604d70ad6c1c3475bbffa4)
