@@ -5,7 +5,13 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const app = express();
-const PORT = process.env.POST || 3000;
+const PORT = process.env.PORT || 3000;
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
+});
+
 app.get('/', (req, res) => {
     res.send("Backend is working");
 });
@@ -17,5 +23,5 @@ app.get('/refresh', require('./lib/refresh'));
 app.get('/oauth/callback', require('./lib/callback'));
 
 app.listen(PORT, () => {
-    console.log("App Listening on 3000 !");
+    console.log(`App Listening on ${PORT}!`);
 });
