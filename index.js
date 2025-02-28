@@ -2,6 +2,10 @@ const express = require('express');
 
 const app = express();
 
+app.get('/', (req, res) => {
+    res.send("Backend is working");
+});
+
 app.get('/initiate', require('./lib/initiate'));
 
 app.get('/refresh', require('./lib/refresh'));
