@@ -5,7 +5,8 @@ require('dotenv').config();
 const finalConfig = {
     baseUrl: process.env.BASE_URL || '',
     clientId: process.env.CLIENT_ID || '',
-    clientSecret: process.env.CLIENT_SECRET || ''
+    clientSecret: process.env.CLIENT_SECRET || '',
+    frontendUrl: process.env.FRONTEND_URL || ''
 };
 
 module.exports = finalConfig; 
