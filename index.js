@@ -12,6 +12,17 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
 });
 
+app.post('/', (req, res) => {
+    try {
+        console.log('Received data:', req.body);
+        // Process the data as needed
+        res.status(200).send("Backend sms received");
+    } catch (error) {
+        console.error('Error processing data:', error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
 app.get('/', (req, res) => {
     res.send("Backend is working");
 });
