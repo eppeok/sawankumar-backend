@@ -1,4 +1,4 @@
-const config = require('../config');
+const config = require('../../config');
 
 async function initiateAuth(req, res) {
     const options = {

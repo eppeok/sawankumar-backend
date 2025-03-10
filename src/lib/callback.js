@@ -1,6 +1,6 @@
 const axios = require('axios');
 const qs = require('qs');
-const appConfig = require('../config');
+const appConfig = require('../../config');
 
 async function callback(req, res) {
     const data = qs.stringify({
