@@ -33,14 +33,14 @@ app.post('/', async (req, res) => {
             }
 
             // Update message status to delivered
-            const apiUrl = `https://services.leadconnectorhq.com/conversations/messages/${messageId}`;
-            await axios.patch(apiUrl, {
+            const apiUrl = `https://services.leadconnectorhq.com/conversations/messages/${messageId}/status`;
+            await axios.put(apiUrl, {
                 status: 'delivered'
             }, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
-                    'Version': '2021-04-15'
+                    'Version': '2021-04-15' 
                 }
             });
 
