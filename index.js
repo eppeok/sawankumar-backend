@@ -17,36 +17,10 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
 });
 
-app.post('/', async (req, res) => {
+app.post('/', (req, res) => {
     try {
         console.log('Received data:', req.body);
-        
-        const { messageId, conversationId } = req.body;
-        
-        if (messageId && conversationId) {
-            // Get the access token from environment variables
-            const accessToken = process.env.GOHIGHLEVEL_ACCESS_TOKEN;
-            
-            if (!accessToken) {
-                console.error('GoHighLevel access token is not configured');
-                return res.status(500).send('GoHighLevel access token is not configured');
-            }
-
-            // Update message status to delivered
-            const apiUrl = `https://services.leadconnectorhq.com/conversations/messages/${messageId}/status`;
-            await axios.put(apiUrl, {
-                status: 'delivered'
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                    'Version': '2021-04-15' 
-                }
-            });
-
-            console.log(`Message ${messageId} status updated to delivered`);
-        }
-
+        // Process the data as needed
         res.status(200).send("Backend sms received");
     } catch (error) {
         console.error('Error processing data:', error);
