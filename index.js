@@ -17,9 +17,28 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
 });
 
-app.post('/', (req, res) => {
+app.post('/', async (req, res) => {
     try {
         console.log('Received data:', req.body);
+
+        const response = await axios.post(
+            `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
+            {
+                messaging_product: "whatsapp",
+                to: req.body.phone.split('+')[1] || req.body.phone,
+                type: "text",
+                text: {
+                    body: req.body.message
+                }
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        console.log('WhatsApp API Response:', response.data);
         // Process the data as needed
         res.status(200).send("Backend sms received");
     } catch (error) {
