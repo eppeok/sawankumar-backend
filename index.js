@@ -19,36 +19,49 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
 });
 
-app.post('/', async (req, res) => {
-    try {
-        console.log('Received data:', req.body);
-        console.log('WhatsApp Access Token:', process.env.WHATSAPP_ACCESS_TOKEN);
-        console.log('WhatsApp Phone Number ID:', process.env.WHATSAPP_PHONE_NUMBER_ID);
-        
-        const response = await axios.post(
-            `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
-            {
-                messaging_product: "whatsapp",
-                to: req.body.phone.split('+')[1] || req.body.phone,
-                type: "text",
-                text: {
-                    body: req.body.message
-                }
-            },
-            {
-                headers: {
-                    'Authorization': `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
-        console.log('WhatsApp API Response:', response.data);
-        // Process the data as needed
-        res.status(200).send("Backend sms received");
-    } catch (error) {
-        console.error('Error processing data:', error);
-        res.status(500).send("Internal Server Error");
+app.post("/", async (req, res) => {
+  try {
+    // Check message direction using GoHighLevel API
+    const ghlApiUrl = `https://services.leadconnectorhq.com/conversations/messages/${req.body.messageId}`;
+    const accessToken = process.env.GOHIGHLEVEL_ACCESS_TOKEN;
+
+    const searchResponse = await axios.get(ghlApiUrl, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        Version: "2021-04-15",
+      },
+    });
+
+    // Check if the message is inbound (from customer)
+    const isInbound = searchResponse.data.direction === "inbound";
+
+    if (isInbound) {
+      const response = await axios.post(
+        `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
+        {
+          messaging_product: "whatsapp",
+          to: req.body.phone.split("+")[1] || req.body.phone,
+          type: "text",
+          text: {
+            body: req.body.message,
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("WhatsApp API Response:", response.data);
     }
+    // Process the data as needed
+    res.status(200).send("Backend sms received");
+  } catch (error) {
+    console.error("Error processing data:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 app.get('/', (req, res) => {
