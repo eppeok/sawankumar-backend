@@ -33,10 +33,10 @@ app.post("/", async (req, res) => {
         Version: "2021-04-15",
       },
     });
-    console.log('Search response:', searchResponse.data);
+    console.log('Search response:', searchResponse.data.message);
 
     // Check if the message is inbound (from customer)
-    const isInbound = searchResponse.data.direction === "inbound";
+    const isInbound = searchResponse.data.message.direction === "inbound";
 
     if (!isInbound) {
       const response = await axios.post(
