@@ -1,6 +1,8 @@
 const express = require('express');
 const dotenv = require("dotenv");
 const axios = require('axios');
+const webhookRoutes = require('./src/routes/webhookRoutes');
+const { privacyPolicyContent, termsOfServiceContent } = require('./src/lib/policy-content');
 
 // dotenv will silently fail on GitHub Actions, otherwise this breaks deployment
 dotenv.config();
@@ -119,11 +121,33 @@ app.post('/reply', async (req, res) => {
     }
 });
 
-// Import webhook routes
-const webhookRoutes = require('./src/routes/webhookRoutes');
 
 // Use webhook routes
 app.use('/webhook', webhookRoutes);
+
+// Privacy Policy endpoint
+app.get('/privacy-policy', (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
+        res.setHeader('Cache-Control', 'public, max-age=86400'); // 24 hour cache
+        res.status(200).send(privacyPolicyContent);
+    } catch (error) {
+        console.error('Privacy Policy Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Terms of Service endpoint
+app.get('/terms-of-service', (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
+        res.setHeader('Cache-Control', 'public, max-age=86400'); // 24 hour cache
+        res.status(200).send(termsOfServiceContent);
+    } catch (error) {
+        console.error('Terms of Service Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`App Listening on ${PORT}!`);
