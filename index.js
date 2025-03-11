@@ -21,6 +21,7 @@ app.get('/health', (req, res) => {
 
 app.post("/", async (req, res) => {
   try {
+    console.log('Received request:', req.body);
     // Check message direction using GoHighLevel API
     const ghlApiUrl = `https://services.leadconnectorhq.com/conversations/messages/${req.body.messageId}`;
     const accessToken = process.env.GOHIGHLEVEL_ACCESS_TOKEN;
