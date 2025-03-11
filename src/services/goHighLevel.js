@@ -51,7 +51,7 @@ const getConversationByPhone = async (phoneNumber) => {
 const sendMessage = async (payload) => {
     try {
         const response = await axios.post(
-            'https://services.leadconnectorhq.com/conversations/messages',
+            'https://services.leadconnectorhq.com/conversations/messages/inbound',
             payload,
             {
                 headers: {

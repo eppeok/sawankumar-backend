@@ -81,7 +81,7 @@ app.post('/reply', async (req, res) => {
         const { messageId, phone, message, locationId, contactId, conversationId } = req.body;
         
         // GoHighLevel API endpoint for sending messages (corrected as per documentation)
-        const apiUrl = 'https://services.leadconnectorhq.com/conversations/messages';
+        const apiUrl = 'https://services.leadconnectorhq.com/conversations/messages/inbound';
         
         // Get the access token from environment variables
         const accessToken = process.env.GOHIGHLEVEL_ACCESS_TOKEN;
@@ -97,7 +97,6 @@ app.post('/reply', async (req, res) => {
         // Prepare the request payload according to documentation
         const payload = {
             type: 'SMS',
-            contactId: contactId,
             message: message,
             conversationId: conversationId,  // Added conversationId to maintain the thread
             // Optional fields if needed:
