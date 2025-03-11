@@ -119,6 +119,77 @@ app.post('/reply', async (req, res) => {
     }
 });
 
+// Webhook verification endpoint
+app.get('/webhook', (req, res) => {
+    try {
+        // Get verify token from environment variable
+        const VERIFY_TOKEN = process.env.WEBHOOK_VERIFY_TOKEN;
+        
+        // Parse params from the webhook verification request
+        const mode = req.query["hub.mode"];
+        const token = req.query["hub.verify_token"];
+        const challenge = req.query["hub.challenge"];
+        
+        // Check if a token and mode were sent
+        if (mode && token) {
+            // Check the mode and token sent are correct
+            if (mode === "subscribe" && token === VERIFY_TOKEN) {
+                // Respond with 200 OK and challenge token from the request
+                console.log("WEBHOOK_VERIFIED");
+                res.status(200).send(challenge);
+            } else {
+                // Responds with '403 Forbidden' if verify tokens do not match
+                res.sendStatus(403);
+            }
+        } else {
+            // Returns a '404 Not Found' if mode or token are missing
+            res.sendStatus(404);
+        }
+    } catch (error) {
+        console.error('Webhook Verification Error:', error);
+        res.sendStatus(500);
+    }
+});
+
+// Webhook for receiving messages
+app.post('/webhook', (req, res) => {
+    try {
+        const body = req.body;
+
+        // Check if this is an event from a WhatsApp API
+        if (body.object) {
+            if (body.entry && 
+                body.entry[0].changes && 
+                body.entry[0].changes[0] && 
+                body.entry[0].changes[0].value.messages && 
+                body.entry[0].changes[0].value.messages[0]
+            ) {
+                const phone_number_id = body.entry[0].changes[0].value.metadata.phone_number_id;
+                const from = body.entry[0].changes[0].value.messages[0].from;
+                const msg_body = body.entry[0].changes[0].value.messages[0].text.body;
+
+                console.log('Received message:', {
+                    phone_number_id,
+                    from,
+                    msg_body
+                });
+
+                // Send seen status
+                // TODO: Implement message handling logic here
+
+                // Return a 200 OK response
+                res.status(200).send('OK');
+            } else {
+                // Return a '404 Not Found' if event is not from a WhatsApp API
+                res.sendStatus(404);
+            }
+        }
+    } catch (error) {
+        console.error('Webhook Error:', error);
+        res.sendStatus(500);
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`App Listening on ${PORT}!`);
 });
