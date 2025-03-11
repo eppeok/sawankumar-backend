@@ -79,7 +79,6 @@ const handleMessages = async (value) => {
                     const conversation = await getConversationByPhone(from);
                     await sendMessage({
                         type: 'SMS',
-                        contactId: conversation.contactId,
                         message: message.text.body,
                         conversationId: conversation.conversationId
                     });
