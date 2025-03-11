@@ -1,3 +1,6 @@
+const { getConversationByPhone, sendMessage } = require('../services/goHighLevel');
+const axios = require('axios');
+
 const verifyWebhook = (req, res) => {
     try {
         // Get verify token from environment variable
@@ -63,7 +66,7 @@ const handleWebhookPost = (req, res) => {
     }
 };
 
-const handleMessages = (value) => {
+const handleMessages = async (value) => {
     if (value.messages && value.messages[0]) {
         const message = value.messages[0];
         const phone_number_id = value.metadata.phone_number_id;
@@ -72,10 +75,17 @@ const handleMessages = (value) => {
         // Handle different message types
         switch (message.type) {
             case 'text':
-                console.log('Received text message:', {
-                    from,
-                    message: message.text.body
-                });
+                try {
+                    const conversation = await getConversationByPhone(from);
+                    await sendMessage({
+                        type: 'SMS',
+                        contactId: conversation.contactId,
+                        message: message.text.body,
+                        conversationId: conversation.conversationId
+                    });
+                } catch (error) {
+                    console.error('Error forwarding message to GoHighLevel:', error.message);
+                }
                 break;
 
             case 'image':
