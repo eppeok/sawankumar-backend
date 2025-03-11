@@ -36,7 +36,7 @@ app.post("/", async (req, res) => {
     // Check if the message is inbound (from customer)
     const isInbound = searchResponse.data.direction === "inbound";
 
-    if (isInbound) {
+    if (!isInbound) {
       const response = await axios.post(
         `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
         {
