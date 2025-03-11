@@ -21,6 +21,7 @@ app.get('/health', (req, res) => {
 
 app.post("/", async (req, res) => {
   try {
+    console.log('Received request:', req.body);
     // Check message direction using GoHighLevel API
     const ghlApiUrl = `https://services.leadconnectorhq.com/conversations/messages/${req.body.messageId}`;
     const accessToken = process.env.GOHIGHLEVEL_ACCESS_TOKEN;
@@ -36,7 +37,7 @@ app.post("/", async (req, res) => {
     // Check if the message is inbound (from customer)
     const isInbound = searchResponse.data.direction === "inbound";
 
-    if (isInbound) {
+    if (!isInbound) {
       const response = await axios.post(
         `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
         {
