@@ -20,7 +20,9 @@ app.get('/health', (req, res) => {
 app.post('/', async (req, res) => {
     try {
         console.log('Received data:', req.body);
-
+        console.log('WhatsApp Access Token:', process.env.WHATSAPP_ACCESS_TOKEN);
+        console.log('WhatsApp Phone Number ID:', process.env.WHATSAPP_PHONE_NUMBER_ID);
+        
         const response = await axios.post(
             `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
             {
