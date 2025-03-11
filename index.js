@@ -157,32 +157,67 @@ app.post('/webhook', (req, res) => {
         const body = req.body;
 
         // Check if this is an event from a WhatsApp API
-        if (body.object) {
-            if (body.entry && 
-                body.entry[0].changes && 
-                body.entry[0].changes[0] && 
-                body.entry[0].changes[0].value.messages && 
-                body.entry[0].changes[0].value.messages[0]
-            ) {
-                const phone_number_id = body.entry[0].changes[0].value.metadata.phone_number_id;
-                const from = body.entry[0].changes[0].value.messages[0].from;
-                const msg_body = body.entry[0].changes[0].value.messages[0].text.body;
+        if (body.object === 'whatsapp_business_account') {
+            if (body.entry && body.entry[0].changes) {
+                const change = body.entry[0].changes[0];
+                const value = change.value;
 
-                console.log('Received message:', {
-                    phone_number_id,
-                    from,
-                    msg_body
-                });
+                switch (change.field) {
+                    case 'messages':
+                        if (value.messages && value.messages[0]) {
+                            const message = value.messages[0];
+                            const phone_number_id = value.metadata.phone_number_id;
+                            const from = message.from;
 
-                // Send seen status
-                // TODO: Implement message handling logic here
+                            // Handle different message types
+                            switch (message.type) {
+                                case 'text':
+                                    console.log('Received text message:', {
+                                        from,
+                                        message: message.text.body
+                                    });
+                                    break;
 
-                // Return a 200 OK response
-                res.status(200).send('OK');
-            } else {
-                // Return a '404 Not Found' if event is not from a WhatsApp API
-                res.sendStatus(404);
+                                case 'image':
+                                    console.log('Received image message:', {
+                                        from,
+                                        image_id: message.image.id
+                                    });
+                                    break;
+
+                                case 'location':
+                                    console.log('Received location:', {
+                                        from,
+                                        latitude: message.location.latitude,
+                                        longitude: message.location.longitude
+                                    });
+                                    break;
+                            }
+                        }
+
+                        // Handle message status updates
+                        if (value.statuses && value.statuses[0]) {
+                            const status = value.statuses[0];
+                            console.log('Message Status Update:', {
+                                message_id: status.id,
+                                status: status.status,
+                                timestamp: status.timestamp
+                            });
+                        }
+                        break;
+
+                    case 'message_template_status_update':
+                        console.log('Template status update:', value);
+                        break;
+
+                    case 'phone_number_quality_update':
+                        console.log('Phone number quality update:', value);
+                        break;
+                }
             }
+            res.sendStatus(200);
+        } else {
+            res.sendStatus(404);
         }
     } catch (error) {
         console.error('Webhook Error:', error);
