@@ -60,8 +60,11 @@ app.post("/", async (req, res) => {
     }
     // Process the data as needed
     res.status(200).json({
-      status: "received",
+      status: "delivered",
+      success: true,
       messageId: req.body.messageId,
+      message: req.body.message,
+      contactId: req.body.contactId,
       conversationId: req.body.conversationId,
       note: "Message received successfully"
   });
