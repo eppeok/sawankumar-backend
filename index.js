@@ -59,7 +59,12 @@ app.post("/", async (req, res) => {
       console.log("WhatsApp API Response:", response.data);
     }
     // Process the data as needed
-    res.status(200).send("Backend sms received");
+    res.status(200).json({
+      status: "received",
+      messageId: req.body.messageId,
+      conversationId: req.body.conversationId,
+      note: "Message received successfully"
+  });
   } catch (error) {
     console.error("Error processing data:", error);
     res.status(500).send("Internal Server Error");
