@@ -39,8 +39,8 @@ const handleWebhookPost = (req, res) => {
         // Check if this is an event from a WhatsApp API
         if (body.object === 'whatsapp_business_account') {
             if (body.entry && body.entry[0].changes) {
-                console.log('Received WhatsApp event:', body);
                 const change = body.entry[0].changes[0];
+                console.log('Received WhatsApp event:', change);
                 const value = change.value;
 
                 switch (change.field) {
