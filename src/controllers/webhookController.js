@@ -70,6 +70,7 @@ const handleWebhookPost = (req, res) => {
 const handleMessages = async (value) => {
     if (value.messages && value.messages[0]) {
         const message = value.messages[0];
+        console.log('---------------------------------Received message:', message);
         const phone_number_id = value.metadata.phone_number_id;
         const from = message.from;
 
