@@ -1,4 +1,4 @@
-const { getConversationByPhone, sendMessage, sendImageMessage } = require('../services/goHighLevel');
+const { getConversationByPhone, sendMessage } = require('../services/goHighLevel');
 const axios = require('axios');
 
 const verifyWebhook = (req, res) => {
@@ -88,23 +88,10 @@ const handleMessages = async (value) => {
                 break;
 
             case 'image':
-                try {
-                    const conversation = await getConversationByPhone(from);
-                    // Get the image URL from WhatsApp
-                    const imageUrl = message.image.link;
-                    // Check if there's a caption with the image
-                    const caption = message.image.caption || '';
-                    
-                    await sendImageMessage({
-                        type: 'SMS',
-                        conversationId: conversation.conversationId,
-                        attachments: [imageUrl],
-                        contentType: 'image/jpeg',
-                        message: caption // Include the caption as the message
-                    });
-                } catch (error) {
-                    console.error('Error forwarding image to GoHighLevel:', error.message);
-                }
+                console.log('Received image message:', {
+                    from,
+                    image_id: message.image.id
+                });
                 break;
 
             case 'location':
