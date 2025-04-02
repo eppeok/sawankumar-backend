@@ -67,7 +67,27 @@ const sendMessage = async (payload) => {
     }
 };
 
+const sendImageMessage = async (payload) => {
+    try {
+        const response = await axios.post(
+            'https://services.leadconnectorhq.com/conversations/messages/inbound',
+            payload,
+            {
+                headers: {
+                    'Authorization': `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
+                    'Content-Type': 'application/json',
+                    'Version': '2021-04-15'
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        throw new Error(`Failed to send image message: ${error.message}`);
+    }
+};
+
 module.exports = {
     getConversationByPhone,
-    sendMessage
+    sendMessage,
+    sendImageMessage
 }; 
