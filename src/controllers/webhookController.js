@@ -1,5 +1,14 @@
 const { getConversationByPhone, sendMessage } = require('../services/goHighLevel');
 const axios = require('axios');
+const dotenv = require('dotenv');
+dotenv.config();
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: "duwxuhvn2",
+  api_key: "576673113496659",
+  api_secret: "dbiZaKWhzU5H2C_7CR7GrOYa8fU",
+});
 
 const verifyWebhook = (req, res) => {
     try {
@@ -71,38 +80,91 @@ const handleMessages = async (value) => {
     if (value.messages && value.messages[0]) {
         const message = value.messages[0];
         console.log('---------------------------------Received message:', message);
-        const phone_number_id = value.metadata.phone_number_id;
         const from = message.from;
+        const conversation = await getConversationByPhone(from);
 
         // Handle different message types
         switch (message.type) {
-            case 'text':
-                try {
-                    const conversation = await getConversationByPhone(from);
-                    await sendMessage({
-                        type: 'SMS',
-                        message: message.text.body,
-                        conversationId: conversation.conversationId
-                    });
-                } catch (error) {
-                    console.error('Error forwarding message to GoHighLevel:', error.message);
+          case "text":
+            try {
+              await sendMessage({
+                type: "SMS",
+                message: message.text.body,
+                conversationId: conversation.conversationId,
+              });
+            } catch (error) {
+              console.error(
+                "Error forwarding message to GoHighLevel:",
+                error.message
+              );
+            }
+            break;
+
+          case "image":
+            try {
+              const imageId = message.image.id;
+              const captionMessage = message.image.caption;
+
+              // Step 1: Get the secure media URL from WhatsApp
+              const token = process.env.WHATSAPP_ACCESS_TOKEN; // Your WhatsApp API token
+              const mediaResponse = await axios.get(
+                `https://graph.facebook.com/v22.0/${imageId}`,
+                {
+                  headers: { Authorization: `Bearer ${token}` },
                 }
-                break;
+              );
 
-            case 'image':
-                console.log('Received image message:', {
-                    from,
-                    image_id: message.image.id
-                });
-                break;
+              if (!mediaResponse.data || !mediaResponse.data.url) {
+                throw new Error("Failed to get media URL from WhatsApp");
+              }
 
-            case 'location':
-                console.log('Received location:', {
-                    from,
-                    latitude: message.location.latitude,
-                    longitude: message.location.longitude
-                });
-                break;
+              const mediaUrl = mediaResponse.data.url;
+
+              // Step 2: Download the image from WhatsApp's media URL (with authentication)
+              const imageResponse = await axios.get(mediaUrl, {
+                headers: { Authorization: `Bearer ${token}` },
+                responseType: "arraybuffer", // Required for binary data
+              });
+
+              // Step 3: Upload the image to Cloudinary
+              const uploadedImage = await new Promise((resolve, reject) => {
+                cloudinary.uploader
+                  .upload_stream(
+                    { resource_type: "image" },
+                    (error, result) => {
+                      if (error) reject(error);
+                      else resolve(result);
+                    }
+                  )
+                  .end(imageResponse.data);
+              });
+
+            //   console.log(
+            //     "Image uploaded to Cloudinary:",
+            //     uploadedImage.secure_url
+            //   );
+
+            const imageUrl = 'https://res.cloudinary.com/duwxuhvn2/image/upload/v1743666414/cbjbsszoz1hyfzk7v6oo.jpg'
+              await sendMessage({
+                type: "SMS",
+                ...(captionMessage ? { message: captionMessage } : {}),
+                attachments: [imageUrl],
+                conversationId: conversation.conversationId,
+              });
+
+
+            } catch (error) {
+              console.error("Error handling image message:", error.message);
+            }
+            break;
+
+          case "location":
+            console.log("Received location:", {
+              from,
+              latitude: message.location.latitude,
+              longitude: message.location.longitude,
+            });
+            break;
         }
     }
 
