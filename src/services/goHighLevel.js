@@ -82,18 +82,18 @@ const updateMessageStatus = async (messageId, status) => {
         });
         console.log('With body:', { status });
 
-        const response = await axios.put(
-            `https://services.leadconnectorhq.com/conversations/messages/${messageId}/status`,
-            { status },
-            {
-                headers: {
-                    'Authorization': `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Version': '2021-04-15'
-                }
-            }
-        );
+        const response = await axios({
+            method: 'PUT',
+            url: `https://services.leadconnectorhq.com/conversations/messages/${messageId}/status`,
+            headers: {
+                'Authorization': `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Version': '2021-04-15'
+            },
+            data: { status }
+        });
+
         console.log('Response:', response.data);
         return response.data;
     } catch (error) {
