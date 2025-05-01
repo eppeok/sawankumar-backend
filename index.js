@@ -54,9 +54,20 @@ app.post("/", async (req, res) => {
     // Check if the message is inbound (from customer)
     const isInbound = searchResponse.data.message.direction === "inbound";
 
+    console.log('Updating message status...');
+    const updateResponse = await axios({
+      method: 'PUT',
+      url: `https://services.leadconnectorhq.com/conversations/messages/${req.body.messageId}/status`,
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Version': '2021-04-15'
+      },
+      data: { status: "delivered" }
+    });
+    console.log('Status update response:', updateResponse.data);
     
-    const updateMessageStatusWithMessageId = await updateMessageStatus(req.body.messageId, "delivered");
-    console.log("updateMessageStatusWithMessageId", updateMessageStatusWithMessageId);
     // if (!isInbound) {
     //   const isAttachmentAvailable = searchResponse?.data?.message?.attachments?.length > 0;
       
@@ -120,7 +131,7 @@ app.post("/", async (req, res) => {
       contactId: req.body.contactId,
       conversationId: req.body.conversationId,
       note: "Message received successfully"
-  });
+    });
   } catch (error) {
     console.error("Error processing data:", error);
     res.status(500).send("Internal Server Error");
