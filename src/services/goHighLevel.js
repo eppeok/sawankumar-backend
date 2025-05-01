@@ -77,6 +77,7 @@ const updateMessageStatus = async (messageId, status) => {
         console.log('With headers:', {
             'Authorization': `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
             'Version': '2021-04-15'
         });
         console.log('With body:', { status });
@@ -88,6 +89,7 @@ const updateMessageStatus = async (messageId, status) => {
                 headers: {
                     'Authorization': `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'Version': '2021-04-15'
                 }
             }
