@@ -92,6 +92,7 @@ const updateMessageStatus = async (messageId, status) => {
         console.log('Response:', response.data);
         return response.data;
     } catch (error) {
+        console.log("error", error);
         throw new Error(`Failed to update message status: ${error.message}`);
     }
 };
