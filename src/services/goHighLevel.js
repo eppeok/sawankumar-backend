@@ -1,5 +1,4 @@
 const axios = require('axios');
-const tokenData = require('../../token.json');
 
 const getConversationByPhone = async (phoneNumber) => {
     try {
@@ -68,29 +67,7 @@ const sendMessage = async (payload) => {
     }
 };
 
-
-
-const updateMessageStatus = async (messageId, status) => {
-    try {
-        const response = await axios.put(
-            `https://services.leadconnectorhq.com/conversations/messages/${messageId}/status`,
-            { status },
-            {
-                headers: {
-                    'Authorization': `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
-                    'Content-Type': 'application/json',
-                    'Version': '2021-04-15'
-                }
-            }
-        );
-        return response.data;
-    } catch (error) {
-        throw new Error(`Failed to update message status: ${error.message}`);
-    }
-};
-
 module.exports = {
     getConversationByPhone,
-    sendMessage,
-    updateMessageStatus
+    sendMessage
 }; 
