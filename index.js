@@ -126,11 +126,10 @@ app.post("/", async (req, res) => {
       note: "Message received successfully",
     });
 
-    console.log("Updating message status...");
-    // Run status update separately (not blocking response)
-    (async () => {
+    // Run status update after 3 seconds
+    setTimeout(async () => {
       try {
-        console.log("Updating message status...");
+        console.log("Updating message status after delay...");
         const updateResponse = await axios({
           method: "PUT",
           url: `https://services.leadconnectorhq.com/conversations/messages/${req.body.messageId}/status`,
@@ -145,11 +144,11 @@ app.post("/", async (req, res) => {
         console.log("Status update response:", updateResponse.data);
       } catch (err) {
         console.error(
-          "PUT /status failed after response:",
+          "PUT /status failed after delay:",
           err?.response?.data || err.message
         );
       }
-    })();
+    }, 3000); // 3 seconds delay
   } catch (error) {
     console.error("Error processing data:", error);
     res.status(500).send("Internal Server Error");
