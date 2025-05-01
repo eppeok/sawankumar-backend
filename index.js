@@ -1,26 +1,33 @@
-const express = require('express');
+const express = require("express");
 const dotenv = require("dotenv");
-const axios = require('axios');
-const webhookRoutes = require('./src/routes/webhookRoutes');
-const { privacyPolicyContent, termsOfServiceContent } = require('./src/lib/policy-content');
-const { updateMessageStatus } = require('./src/services/goHighLevel');
+const axios = require("axios");
+const webhookRoutes = require("./src/routes/webhookRoutes");
+const {
+  privacyPolicyContent,
+  termsOfServiceContent,
+} = require("./src/lib/policy-content");
+const { updateMessageStatus } = require("./src/services/goHighLevel");
 
 // dotenv will silently fail on GitHub Actions, otherwise this breaks deployment
 dotenv.config();
 
 // Validate required environment variables
-const requiredEnvVars = ['GOHIGHLEVEL_ACCESS_TOKEN', 'GOHIGHLEVEL_LOCATION_ID'];
-const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+const requiredEnvVars = ["GOHIGHLEVEL_ACCESS_TOKEN", "GOHIGHLEVEL_LOCATION_ID"];
+const missingEnvVars = requiredEnvVars.filter((envVar) => !process.env[envVar]);
 
 if (missingEnvVars.length > 0) {
-    console.error('Missing required environment variables:', missingEnvVars);
-    process.exit(1);
+  console.error("Missing required environment variables:", missingEnvVars);
+  process.exit(1);
 }
 
 // Log environment variable status (without exposing sensitive values)
-console.log('Environment variables status:', {
-    GOHIGHLEVEL_ACCESS_TOKEN: process.env.GOHIGHLEVEL_ACCESS_TOKEN ? 'Set' : 'Not Set',
-    GOHIGHLEVEL_LOCATION_ID: process.env.GOHIGHLEVEL_LOCATION_ID ? 'Set' : 'Not Set'
+console.log("Environment variables status:", {
+  GOHIGHLEVEL_ACCESS_TOKEN: process.env.GOHIGHLEVEL_ACCESS_TOKEN
+    ? "Set"
+    : "Not Set",
+  GOHIGHLEVEL_LOCATION_ID: process.env.GOHIGHLEVEL_LOCATION_ID
+    ? "Set"
+    : "Not Set",
 });
 
 const app = express();
@@ -31,13 +38,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok' });
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
 app.post("/", async (req, res) => {
   try {
-    console.log('Received request:', req.body);
+    console.log("Received request:", req.body);
     // Check message direction using GoHighLevel API
     const ghlApiUrl = `https://services.leadconnectorhq.com/conversations/messages/${req.body.messageId}`;
     const accessToken = process.env.GOHIGHLEVEL_ACCESS_TOKEN;
@@ -49,34 +56,20 @@ app.post("/", async (req, res) => {
         Version: "2021-04-15",
       },
     });
-    console.log('Search response:', searchResponse.data.message);
+    console.log("Search response:", searchResponse.data.message);
 
     // Check if the message is inbound (from customer)
     const isInbound = searchResponse.data.message.direction === "inbound";
 
-    console.log('Updating message status...');
-    // added access token here for testing
-    const updateResponse = await axios({
-      method: 'PUT',
-      url: `https://services.leadconnectorhq.com/conversations/messages/${req.body.messageId}/status`,
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Version': '2021-04-15'
-      },
-      data: { status: "delivered" }
-    });
-    console.log('Status update response:', updateResponse.data);
     // if (!isInbound) {
     //   const isAttachmentAvailable = searchResponse?.data?.message?.attachments?.length > 0;
-      
+
     //   try {
     //     // If there's an attachment, send it first
     //     if (isAttachmentAvailable) {
     //       const attachmentUrl = searchResponse.data.message.attachments[0];
     //       const attachmentType = attachmentUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? 'image' : 'document';
-          
+
     //       const attachmentResponse = await axios.post(
     //         `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
     //         {
@@ -130,143 +123,169 @@ app.post("/", async (req, res) => {
       message: req.body.message,
       contactId: req.body.contactId,
       conversationId: req.body.conversationId,
-      note: "Message received successfully"
+      note: "Message received successfully",
     });
+
+    console.log("Updating message status...");
+    // Run status update separately (not blocking response)
+    (async () => {
+      try {
+        console.log("Updating message status...");
+        const updateResponse = await axios({
+          method: "PUT",
+          url: `https://services.leadconnectorhq.com/conversations/messages/${req.body.messageId}/status`,
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Version: "2021-04-15",
+          },
+          data: { status: "delivered" },
+        });
+        console.log("Status update response:", updateResponse.data);
+      } catch (err) {
+        console.error(
+          "PUT /status failed after response:",
+          err?.response?.data || err.message
+        );
+      }
+    })();
   } catch (error) {
     console.error("Error processing data:", error);
     res.status(500).send("Internal Server Error");
   }
 });
 
-app.get('/', (req, res) => {
-    res.send("Backend is working");
+app.get("/", (req, res) => {
+  res.send("Backend is working");
 });
 
-app.get('/initiate', require('./src/lib/initiate'));
+app.get("/initiate", require("./src/lib/initiate"));
 
-app.get('/refresh', require('./src/lib/refresh'));
+app.get("/refresh", require("./src/lib/refresh"));
 
-app.get('/oauth/callback', require('./src/lib/callback'));
+app.get("/oauth/callback", require("./src/lib/callback"));
 
-app.post('/reply', async (req, res) => {
-    try {
-        const { messageId, phone, message, locationId, contactId, conversationId } = req.body;
-        
-        // GoHighLevel API endpoint for sending messages (corrected as per documentation)
-        const apiUrl = 'https://services.leadconnectorhq.com/conversations/messages/inbound';
-        
-        // Get the access token from environment variables
-        const accessToken = process.env.GOHIGHLEVEL_ACCESS_TOKEN;
-        
-        if (!accessToken) {
-            throw new Error('GoHighLevel access token is not configured');
-        }
+app.post("/reply", async (req, res) => {
+  try {
+    const { messageId, phone, message, locationId, contactId, conversationId } =
+      req.body;
 
-        if (!conversationId) {
-            throw new Error('Conversation ID is required for replying to messages');
-        }
+    // GoHighLevel API endpoint for sending messages (corrected as per documentation)
+    const apiUrl =
+      "https://services.leadconnectorhq.com/conversations/messages/inbound";
 
-        // Prepare the request payload according to documentation
-        const payload = {
-            type: 'SMS',
-            message: message,
-            conversationId: conversationId,  // Added conversationId to maintain the thread
-            // Optional fields if needed:
-            // attachments: [],
-            // scheduledTimestamp: Math.floor(Date.now() / 1000) // Current time in seconds
-        };
+    // Get the access token from environment variables
+    const accessToken = process.env.GOHIGHLEVEL_ACCESS_TOKEN;
 
-        // Make the API request to GoHighLevel with correct headers
-        const response = await axios.post(apiUrl, payload, {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-                'Version': '2021-04-15'  // Required API version as per documentation
-            }
-        });
-
-        console.log('GoHighLevel API Response:', response.data);
-
-        res.status(200).json({
-            status: 'success',
-            message: 'Reply sent successfully',
-            data: {
-                conversationId: response.data.conversationId,
-                messageId: response.data.messageId,
-                msg: response.data.msg
-            }
-        });
-
-    } catch (error) {
-        console.error('Error sending reply:', error.message);
-        res.status(500).json({
-            status: 'error',
-            message: 'Failed to send reply',
-            error: error.message
-        });
+    if (!accessToken) {
+      throw new Error("GoHighLevel access token is not configured");
     }
+
+    if (!conversationId) {
+      throw new Error("Conversation ID is required for replying to messages");
+    }
+
+    // Prepare the request payload according to documentation
+    const payload = {
+      type: "SMS",
+      message: message,
+      conversationId: conversationId, // Added conversationId to maintain the thread
+      // Optional fields if needed:
+      // attachments: [],
+      // scheduledTimestamp: Math.floor(Date.now() / 1000) // Current time in seconds
+    };
+
+    // Make the API request to GoHighLevel with correct headers
+    const response = await axios.post(apiUrl, payload, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        Version: "2021-04-15", // Required API version as per documentation
+      },
+    });
+
+    console.log("GoHighLevel API Response:", response.data);
+
+    res.status(200).json({
+      status: "success",
+      message: "Reply sent successfully",
+      data: {
+        conversationId: response.data.conversationId,
+        messageId: response.data.messageId,
+        msg: response.data.msg,
+      },
+    });
+  } catch (error) {
+    console.error("Error sending reply:", error.message);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to send reply",
+      error: error.message,
+    });
+  }
 });
 
-app.post('/update-status', async (req, res) => {
+app.post("/update-status", async (req, res) => {
   try {
     const { messageId, status } = req.body;
-    
+
     // Update the message status using GoHighLevel API
     const updateResponse = await axios.put(
       `https://services.leadconnectorhq.com/conversations/messages/${messageId}/status`,
       { status: status },
       {
         headers: {
-          'Authorization': `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
-          'Content-Type': 'application/json',
-          'Version': '2021-04-15'
-        }
+          Authorization: `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
+          "Content-Type": "application/json",
+          Version: "2021-04-15",
+        },
       }
     );
 
-    console.log('GoHighLevel API Response:', updateResponse.data);
+    console.log("GoHighLevel API Response:", updateResponse.data);
     res.status(200).json({
-      status: 'success',
-      message: 'Message status updated successfully',
-      data: updateResponse.data
+      status: "success",
+      message: "Message status updated successfully",
+      data: updateResponse.data,
     });
   } catch (error) {
-    console.error('Error updating message status:', error.message); 
+    console.error("Error updating message status:", error.message);
     res.status(500).json({
-      status: 'error',
-      message: 'Failed to update message status',
-      error: error.message
+      status: "error",
+      message: "Failed to update message status",
+      error: error.message,
     });
   }
 });
 
 // Use webhook routes
-app.use('/webhook', webhookRoutes);
+app.use("/webhook", webhookRoutes);
 
 // Privacy Policy endpoint
-app.get('/privacy-policy', (req, res) => {
-    try {
-        res.setHeader('Content-Type', 'text/html');
-        res.setHeader('Cache-Control', 'public, max-age=86400'); // 24 hour cache
-        res.status(200).send(privacyPolicyContent);
-    } catch (error) {
-        console.error('Privacy Policy Error:', error);
-        res.status(500).send('Internal Server Error');
-    }
+app.get("/privacy-policy", (req, res) => {
+  try {
+    res.setHeader("Content-Type", "text/html");
+    res.setHeader("Cache-Control", "public, max-age=86400"); // 24 hour cache
+    res.status(200).send(privacyPolicyContent);
+  } catch (error) {
+    console.error("Privacy Policy Error:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 // Terms of Service endpoint
-app.get('/terms-of-service', (req, res) => {
-    try {
-        res.setHeader('Content-Type', 'text/html');
-        res.setHeader('Cache-Control', 'public, max-age=86400'); // 24 hour cache
-        res.status(200).send(termsOfServiceContent);
-    } catch (error) {
-        console.error('Terms of Service Error:', error);
-        res.status(500).send('Internal Server Error');
-    }
+app.get("/terms-of-service", (req, res) => {
+  try {
+    res.setHeader("Content-Type", "text/html");
+    res.setHeader("Cache-Control", "public, max-age=86400"); // 24 hour cache
+    res.status(200).send(termsOfServiceContent);
+  } catch (error) {
+    console.error("Terms of Service Error:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 app.listen(PORT, () => {
-    console.log(`App Listening on ${PORT}!`);
+  console.log(`App Listening on ${PORT}!`);
 });
