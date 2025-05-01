@@ -72,11 +72,14 @@ const sendMessage = async (payload) => {
 
 const updateMessageStatus = async (messageId, status) => {
     try {
-       console.log(`curl -X PUT https://services.leadconnectorhq.com/conversations/messages/${messageId}/status \
--H 'Authorization: Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}' \
--H 'Content-Type: application/json' \
--H 'Version: 2021-04-15' \
--d '{"status":"${status}"}'`);
+        // Log the exact request that will be made
+        console.log('Making request to:', `https://services.leadconnectorhq.com/conversations/messages/${messageId}/status`);
+        console.log('With headers:', {
+            'Authorization': `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
+            'Content-Type': 'application/json',
+            'Version': '2021-04-15'
+        });
+        console.log('With body:', { status });
 
         const response = await axios.put(
             `https://services.leadconnectorhq.com/conversations/messages/${messageId}/status`,
@@ -92,7 +95,19 @@ const updateMessageStatus = async (messageId, status) => {
         console.log('Response:', response.data);
         return response.data;
     } catch (error) {
-        console.log("error", error);
+        console.error('Full error details:', {
+            message: error.message,
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data,
+            headers: error.response?.headers,
+            request: {
+                method: error.config?.method,
+                url: error.config?.url,
+                headers: error.config?.headers,
+                data: error.config?.data
+            }
+        });
         throw new Error(`Failed to update message status: ${error.message}`);
     }
 };
