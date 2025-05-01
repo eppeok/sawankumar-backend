@@ -72,6 +72,9 @@ const sendMessage = async (payload) => {
 
 const updateMessageStatus = async (messageId, status) => {
     try {
+        console.log("messageId", messageId);
+        console.log("status", status);
+        console.log("GOHIGHLEVEL_ACCESS_TOKEN", process.env.GOHIGHLEVEL_ACCESS_TOKEN);
         const response = await axios.put(
             `https://services.leadconnectorhq.com/conversations/messages/${messageId}/status`,
             { status },
