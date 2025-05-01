@@ -8,6 +8,21 @@ const { updateMessageStatus } = require('./src/services/goHighLevel');
 // dotenv will silently fail on GitHub Actions, otherwise this breaks deployment
 dotenv.config();
 
+// Validate required environment variables
+const requiredEnvVars = ['GOHIGHLEVEL_ACCESS_TOKEN', 'GOHIGHLEVEL_LOCATION_ID'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+    console.error('Missing required environment variables:', missingEnvVars);
+    process.exit(1);
+}
+
+// Log environment variable status (without exposing sensitive values)
+console.log('Environment variables status:', {
+    GOHIGHLEVEL_ACCESS_TOKEN: process.env.GOHIGHLEVEL_ACCESS_TOKEN ? 'Set' : 'Not Set',
+    GOHIGHLEVEL_LOCATION_ID: process.env.GOHIGHLEVEL_LOCATION_ID ? 'Set' : 'Not Set'
+});
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
