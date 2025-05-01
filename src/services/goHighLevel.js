@@ -75,6 +75,12 @@ const updateMessageStatus = async (messageId, status) => {
         console.log("messageId", messageId);
         console.log("status", status);
         console.log("GOHIGHLEVEL_ACCESS_TOKEN", process.env.GOHIGHLEVEL_ACCESS_TOKEN);
+        console.log(`curl -X PUT https://services.leadconnectorhq.com/conversations/messages/${messageId}/status \
+-H 'Authorization: Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}' \
+-H 'Content-Type: application/json' \
+-H 'Version: 2021-04-15' \
+-d '{"status":"${status}"}'`);
+
         const response = await axios.put(
             `https://services.leadconnectorhq.com/conversations/messages/${messageId}/status`,
             { status },
@@ -86,6 +92,7 @@ const updateMessageStatus = async (messageId, status) => {
                 }
             }
         );
+        console.log('Response:', response.data);
         return response.data;
     } catch (error) {
         throw new Error(`Failed to update message status: ${error.message}`);
