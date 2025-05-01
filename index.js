@@ -39,61 +39,63 @@ app.post("/", async (req, res) => {
     // Check if the message is inbound (from customer)
     const isInbound = searchResponse.data.message.direction === "inbound";
 
-    if (!isInbound) {
-      const isAttachmentAvailable = searchResponse?.data?.message?.attachments?.length > 0;
+    
+    const updateMessageStatusWithMessageId = await updateMessageStatus(req.body.messageId, "delivered");
+    console.log("updateMessageStatusWithMessageId", updateMessageStatusWithMessageId);
+    // if (!isInbound) {
+    //   const isAttachmentAvailable = searchResponse?.data?.message?.attachments?.length > 0;
       
-      const updateMessageStatusWithMessageId = await updateMessageStatus(req.body.messageId, "delivered");
-      try {
-        // If there's an attachment, send it first
-        if (isAttachmentAvailable) {
-          const attachmentUrl = searchResponse.data.message.attachments[0];
-          const attachmentType = attachmentUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? 'image' : 'document';
+    //   try {
+    //     // If there's an attachment, send it first
+    //     if (isAttachmentAvailable) {
+    //       const attachmentUrl = searchResponse.data.message.attachments[0];
+    //       const attachmentType = attachmentUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? 'image' : 'document';
           
-          const attachmentResponse = await axios.post(
-            `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
-            {
-              messaging_product: "whatsapp",
-              to: req.body.phone.split("+")[1] || req.body.phone,
-              type: attachmentType,
-              [attachmentType]: {
-                link: attachmentUrl,
-                caption: req.body.message // Include the message as caption
-              }
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          console.log(`WhatsApp ${attachmentType} API Response:`, attachmentResponse.data);
-        } else {
-          // If no attachment, just send text message
-          const textResponse = await axios.post(
-            `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
-            {
-              messaging_product: "whatsapp",
-              to: req.body.phone.split("+")[1] || req.body.phone,
-              type: "text",
-              text: {
-                body: req.body.message,
-              }
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          console.log("WhatsApp Text API Response:", textResponse.data);
-        }
-      } catch (error) {
-        console.error("Error sending WhatsApp message:", error.response?.data || error.message);
-        throw error; // Re-throw to be caught by outer try-catch
-      }
-    }
+    //       const attachmentResponse = await axios.post(
+    //         `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
+    //         {
+    //           messaging_product: "whatsapp",
+    //           to: req.body.phone.split("+")[1] || req.body.phone,
+    //           type: attachmentType,
+    //           [attachmentType]: {
+    //             link: attachmentUrl,
+    //             caption: req.body.message // Include the message as caption
+    //           }
+    //         },
+    //         {
+    //           headers: {
+    //             Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
+    //             "Content-Type": "application/json",
+    //           },
+    //         }
+    //       );
+    //       console.log(`WhatsApp ${attachmentType} API Response:`, attachmentResponse.data);
+    //     } else {
+    //       // If no attachment, just send text message
+    //       const textResponse = await axios.post(
+    //         `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
+    //         {
+    //           messaging_product: "whatsapp",
+    //           to: req.body.phone.split("+")[1] || req.body.phone,
+    //           type: "text",
+    //           text: {
+    //             body: req.body.message,
+    //           }
+    //         },
+    //         {
+    //           headers: {
+    //             Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
+    //             "Content-Type": "application/json",
+    //           },
+    //         }
+    //       );
+    //       console.log("WhatsApp Text API Response:", textResponse.data);
+    //     }
+    //   } catch (error) {
+    //     console.error("Error sending WhatsApp message:", error.response?.data || error.message);
+    //     throw error; // Re-throw to be caught by outer try-catch
+    //   }
+    // }
     // Process the data as needed
     res.status(200).json({
       status: "delivered",
