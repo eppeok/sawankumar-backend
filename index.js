@@ -11,25 +11,6 @@ const { updateMessageStatus } = require("./src/services/goHighLevel");
 // dotenv will silently fail on GitHub Actions, otherwise this breaks deployment
 dotenv.config();
 
-// Validate required environment variables
-const requiredEnvVars = ["GOHIGHLEVEL_ACCESS_TOKEN", "GOHIGHLEVEL_LOCATION_ID"];
-const missingEnvVars = requiredEnvVars.filter((envVar) => !process.env[envVar]);
-
-if (missingEnvVars.length > 0) {
-  console.error("Missing required environment variables:", missingEnvVars);
-  process.exit(1);
-}
-
-// Log environment variable status (without exposing sensitive values)
-console.log("Environment variables status:", {
-  GOHIGHLEVEL_ACCESS_TOKEN: process.env.GOHIGHLEVEL_ACCESS_TOKEN
-    ? "Set"
-    : "Not Set",
-  GOHIGHLEVEL_LOCATION_ID: process.env.GOHIGHLEVEL_LOCATION_ID
-    ? "Set"
-    : "Not Set",
-});
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -130,18 +111,11 @@ app.post("/", async (req, res) => {
     setTimeout(async () => {
       try {
         console.log("Updating message status after delay...");
-        const updateResponse = await axios({
-          method: "PUT",
-          url: `https://services.leadconnectorhq.com/conversations/messages/${req.body.messageId}/status`,
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Version: "2021-04-15",
-          },
-          data: { status: "delivered" },
-        });
-        console.log("Status update response:", updateResponse.data);
+        const updateResponse = await updateMessageStatus(
+          req.body.messageId,
+          "delivered"
+        );
+        console.log("Status update response:", updateResponse);
       } catch (err) {
         console.error(
           "PUT /status failed after delay:",

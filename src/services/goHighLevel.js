@@ -72,44 +72,20 @@ const sendMessage = async (payload) => {
 
 const updateMessageStatus = async (messageId, status) => {
     try {
-        // Log the exact request that will be made
-        console.log('Making request to:', `https://services.leadconnectorhq.com/conversations/messages/${messageId}/status`);
-        console.log('With headers:', {
-            'Authorization': `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Version': '2021-04-15'
-        });
-        console.log('With body:', { status });
-
-        const response = await axios({
-            method: 'PUT',
-            url: `https://services.leadconnectorhq.com/conversations/messages/${messageId}/status`,
-            headers: {
-                'Authorization': `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Version': '2021-04-15'
-            },
-            data: { status }
-        });
-
-        console.log('Response:', response.data);
+        const response = await axios.put(
+            `https://services.leadconnectorhq.com/conversations/messages/${messageId}/status`,
+            { status },
+            {
+                headers: {
+                    'Authorization': `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Version': '2021-04-15'
+                }
+            }
+        );
         return response.data;
     } catch (error) {
-        console.error('Full error details:', {
-            message: error.message,
-            status: error.response?.status,
-            statusText: error.response?.statusText,
-            data: error.response?.data,
-            headers: error.response?.headers,
-            request: {
-                method: error.config?.method,
-                url: error.config?.url,
-                headers: error.config?.headers,
-                data: error.config?.data
-            }
-        });
         throw new Error(`Failed to update message status: ${error.message}`);
     }
 };
