@@ -1,5 +1,5 @@
-const axios = require('axios');
 const dotenv = require('dotenv');
+const axios = require('axios');
 
 dotenv.config();
 
@@ -72,10 +72,7 @@ const sendMessage = async (payload) => {
 
 const updateMessageStatus = async (messageId, status) => {
     try {
-        console.log("messageId", messageId);
-        console.log("status", status);
-        console.log("GOHIGHLEVEL_ACCESS_TOKEN", process.env.GOHIGHLEVEL_ACCESS_TOKEN);
-        console.log(`curl -X PUT https://services.leadconnectorhq.com/conversations/messages/${messageId}/status \
+       console.log(`curl -X PUT https://services.leadconnectorhq.com/conversations/messages/${messageId}/status \
 -H 'Authorization: Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}' \
 -H 'Content-Type: application/json' \
 -H 'Version: 2021-04-15' \
