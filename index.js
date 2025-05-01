@@ -3,7 +3,6 @@ const dotenv = require("dotenv");
 const axios = require('axios');
 const webhookRoutes = require('./src/routes/webhookRoutes');
 const { privacyPolicyContent, termsOfServiceContent } = require('./src/lib/policy-content');
-const { updateMessageStatus } = require('./src/services/goHighLevel');
 
 // dotenv will silently fail on GitHub Actions, otherwise this breaks deployment
 dotenv.config();
@@ -42,10 +41,6 @@ app.post("/", async (req, res) => {
     if (!isInbound) {
       const isAttachmentAvailable = searchResponse?.data?.message?.attachments?.length > 0;
       
-            // for testing 
-     const updateMessageStatus = await updateMessageStatus(req.body.messageId, "delivered");
-
-
       try {
         // If there's an attachment, send it first
         if (isAttachmentAvailable) {
