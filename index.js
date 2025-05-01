@@ -42,7 +42,7 @@ app.post("/", async (req, res) => {
     if (!isInbound) {
       const isAttachmentAvailable = searchResponse?.data?.message?.attachments?.length > 0;
       
-      const updateMessageStatus = await updateMessageStatus(req.body.messageId, "delivered");
+      const updateMessageStatusWithMessageId = await updateMessageStatus(req.body.messageId, "delivered");
       try {
         // If there's an attachment, send it first
         if (isAttachmentAvailable) {
