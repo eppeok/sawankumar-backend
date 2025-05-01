@@ -217,7 +217,7 @@ app.post('/update-status', async (req, res) => {
       { status: status },
       {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          'Authorization': `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
           'Content-Type': 'application/json',
           'Version': '2021-04-15'
         }
