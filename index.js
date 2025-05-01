@@ -55,11 +55,12 @@ app.post("/", async (req, res) => {
     const isInbound = searchResponse.data.message.direction === "inbound";
 
     console.log('Updating message status...');
+    // added access token here for testing
     const updateResponse = await axios({
       method: 'PUT',
       url: `https://services.leadconnectorhq.com/conversations/messages/${req.body.messageId}/status`,
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        'Authorization': `Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoQ2xhc3MiOiJMb2NhdGlvbiIsImF1dGhDbGFzc0lkIjoiZHNXakJHSXhVcTFMelpYekNCOWMiLCJzb3VyY2UiOiJJTlRFR1JBVElPTiIsInNvdXJjZUlkIjoiNjdjMDU0YjY2MGE1NjY0MTBjNzNmNGE0LW03c3lzaXRqIiwiY2hhbm5lbCI6Ik9BVVRIIiwicHJpbWFyeUF1dGhDbGFzc0lkIjoiZHNXakJHSXhVcTFMelpYekNCOWMiLCJvYXV0aE1ldGEiOnsic2NvcGVzIjpbImNvbnZlcnNhdGlvbnMvbWVzc2FnZS5yZWFkb25seSIsImNvbnZlcnNhdGlvbnMvbWVzc2FnZS53cml0ZSIsImNvbnZlcnNhdGlvbnMucmVhZG9ubHkiLCJjb252ZXJzYXRpb25zLndyaXRlIiwiY29udmVyc2F0aW9ucy9yZXBvcnRzLnJlYWRvbmx5IiwiY29udmVyc2F0aW9ucy9saXZlY2hhdC53cml0ZSIsImNvbnRhY3RzLnJlYWRvbmx5IiwiY29udGFjdHMud3JpdGUiXSwiY2xpZW50IjoiNjdjMDU0YjY2MGE1NjY0MTBjNzNmNGE0IiwidmVyc2lvbklkIjoiNjdjMDU0YjY2MGE1NjY0MTBjNzNmNGE0IiwiY2xpZW50S2V5IjoiNjdjMDU0YjY2MGE1NjY0MTBjNzNmNGE0LW03c3lzaXRqIn0sImlhdCI6MTc0NjA3NTE1NC4yMzksImV4cCI6MTc0NjE2MTU1NC4yMzl9.d0ZW4euVvF70UklYgCn961Uzy0ZPe-qxRp8oULBT5qACxfQOE0zJDznwyFI-TwXLbSai6ZDIev2D_dOkQTYVcHAm0HAhQuqKbCPkhdiay3zAFqhNOPm_kwxWaP7a9ZDnSWZVPukjzuGf0YMdor4-xsvnp4oZvTw4N0zEnGka4Rb3r_Q1HHVTPYiJSLNXbankTBOXHxGbdpOcFGX2gUdvVWByKAep7QxQ0mVXvW2SAzdlsiHZdCHcWX3ekAmlQ9aRPHgleazDdYrCwEg5I8ireR2lOb9jkqDgO5Jm98-_Dlrlyck4flBpz7sr1ZnnrEP476rl-6UjGkYsb5yS0sXjyX7dHxO5wRtKnPJlazRdoPbgmJny-L8aWufcKR_cCT941b3IHyjB46abfWSPvSJXSWKYxr9KKt2z8xmb6-MyQOHpfew8qyFoaXZM2A3A6IdQicEtQhrBPc6KeSM9djE0DUpqhfYo_eMOq0C364X6GF3f8htIuXR4re6TYu-_52UhGIR3ZkdahXOcrmUly7UglwCZUidKjyfIHCOhb6amWCwMeYtEZDlAnfKofrv1nyOioRQT2tMuGoDAC1Kh7or1b8NMTIN2AAizP4czzcKMdSxcC6D5DV1SDB3F7yb6gGUrxW15ZcDW0ha6xcLjIYI2MWw6TKry36AMao8GuE7cu80`,
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         'Version': '2021-04-15'
@@ -67,7 +68,6 @@ app.post("/", async (req, res) => {
       data: { status: "delivered" }
     });
     console.log('Status update response:', updateResponse.data);
-    
     // if (!isInbound) {
     //   const isAttachmentAvailable = searchResponse?.data?.message?.attachments?.length > 0;
       
