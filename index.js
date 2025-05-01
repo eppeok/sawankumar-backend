@@ -148,7 +148,7 @@ app.post("/", async (req, res) => {
           err?.response?.data || err.message
         );
       }
-    }, 2000); // 3 seconds delay
+    }, 1000); // 3 seconds delay
   } catch (error) {
     console.error("Error processing data:", error);
     res.status(500).send("Internal Server Error");
