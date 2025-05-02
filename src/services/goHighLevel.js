@@ -1,5 +1,6 @@
 const dotenv = require('dotenv');
 const axios = require('axios');
+const tokenService = require('./tokenService');
 
 dotenv.config();
 
@@ -10,6 +11,7 @@ const getConversationByPhone = async (phoneNumber) => {
             phoneNumber = `+${phoneNumber}`;
         }
 
+        const accessToken = await tokenService.getAccessToken();
         const response = await axios.get(
             'https://services.leadconnectorhq.com/conversations/search',
             {
@@ -19,7 +21,7 @@ const getConversationByPhone = async (phoneNumber) => {
                     limit: 20
                 },
                 headers: {
-                    'Authorization': `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
+                    'Authorization': `Bearer ${accessToken}`,
                     'Version': '2021-04-15',
                     'Accept': 'application/json'
                 }
@@ -53,12 +55,13 @@ const getConversationByPhone = async (phoneNumber) => {
 
 const sendMessage = async (payload) => {
     try {
+        const accessToken = await tokenService.getAccessToken();
         const response = await axios.post(
             'https://services.leadconnectorhq.com/conversations/messages/inbound',
             payload,
             {
                 headers: {
-                    'Authorization': `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
+                    'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                     'Version': '2021-04-15'
                 }
@@ -72,12 +75,13 @@ const sendMessage = async (payload) => {
 
 const updateMessageStatus = async (messageId, status) => {
     try {
+        const accessToken = await tokenService.getAccessToken();
         const response = await axios.put(
             `https://services.leadconnectorhq.com/conversations/messages/${messageId}/status`,
             { status },
             {
                 headers: {
-                    'Authorization': `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
+                    'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'Version': '2021-04-15'
@@ -87,6 +91,25 @@ const updateMessageStatus = async (messageId, status) => {
         return response.data;
     } catch (error) {
         throw new Error(`Failed to update message status: ${error.message}`);
+    }
+};
+
+const makeRequest = async (method, url, data = null) => {
+    try {
+        const accessToken = await tokenService.getAccessToken();
+        const response = await axios({
+            method,
+            url: `${process.env.GOHIGHLEVEL_API_URL}${url}`,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            data
+        });
+        return response.data;
+    } catch (error) {
+        console.error('GoHighLevel API Error:', error.response?.data || error.message);
+        throw error;
     }
 };
 

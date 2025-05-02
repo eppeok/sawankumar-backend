@@ -2,11 +2,15 @@ const express = require("express");
 const dotenv = require("dotenv");
 const axios = require("axios");
 const webhookRoutes = require("./src/routes/webhookRoutes");
+const tokenRoutes = require("./src/routes/tokenRoutes");
+const TokenService = require("./src/services/tokenService");
 const {
   privacyPolicyContent,
   termsOfServiceContent,
 } = require("./src/lib/policy-content");
 const { updateMessageStatus } = require("./src/services/goHighLevel");
+const fs = require('fs');
+const path = require('path');
 
 // dotenv will silently fail on GitHub Actions, otherwise this breaks deployment
 dotenv.config();
@@ -28,7 +32,7 @@ app.post("/", async (req, res) => {
     console.log("Received request:", req.body);
     // Check message direction using GoHighLevel API
     const ghlApiUrl = `https://services.leadconnectorhq.com/conversations/messages/${req.body.messageId}`;
-    const accessToken = process.env.GOHIGHLEVEL_ACCESS_TOKEN;
+    const accessToken = await TokenService.getAccessToken();
 
     const searchResponse = await axios.get(ghlApiUrl, {
       headers: {
@@ -129,7 +133,7 @@ app.post("/", async (req, res) => {
   }
 });
 
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
   res.send("Backend is working");
 });
 
@@ -149,7 +153,7 @@ app.post("/reply", async (req, res) => {
       "https://services.leadconnectorhq.com/conversations/messages/inbound";
 
     // Get the access token from environment variables
-    const accessToken = process.env.GOHIGHLEVEL_ACCESS_TOKEN;
+    const accessToken = await TokenService.getAccessToken();
 
     if (!accessToken) {
       throw new Error("GoHighLevel access token is not configured");
@@ -199,38 +203,8 @@ app.post("/reply", async (req, res) => {
   }
 });
 
-app.post("/update-status", async (req, res) => {
-  try {
-    const { messageId, status } = req.body;
-
-    // Update the message status using GoHighLevel API
-    const updateResponse = await axios.put(
-      `https://services.leadconnectorhq.com/conversations/messages/${messageId}/status`,
-      { status: status },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.GOHIGHLEVEL_ACCESS_TOKEN}`,
-          "Content-Type": "application/json",
-          Version: "2021-04-15",
-        },
-      }
-    );
-
-    console.log("GoHighLevel API Response:", updateResponse.data);
-    res.status(200).json({
-      status: "success",
-      message: "Message status updated successfully",
-      data: updateResponse.data,
-    });
-  } catch (error) {
-    console.error("Error updating message status:", error.message);
-    res.status(500).json({
-      status: "error",
-      message: "Failed to update message status",
-      error: error.message,
-    });
-  }
-});
+// Use token routes
+app.use("/api/token", tokenRoutes);
 
 // Use webhook routes
 app.use("/webhook", webhookRoutes);
@@ -259,6 +233,35 @@ app.get("/terms-of-service", (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`App Listening on ${PORT}!`);
+// Initialize server
+async function initializeServer() {
+  try {
+    // Initialize token service
+    await TokenService.initialize();
+    console.log('Token service initialized successfully');
+    
+    return true;
+  } catch (error) {
+    console.error("Failed to initialize server:", error);
+    return false;
+  }
+}
+
+// Start server only if initialization succeeds
+async function startServer() {
+  const initialized = await initializeServer();
+  if (!initialized) {
+    console.error('Server initialization failed. Exiting...');
+    process.exit(1);
+  }
+
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
+
+// Start the server
+startServer().catch(error => {
+  console.error('Fatal error during server startup:', error);
+  process.exit(1);
 });

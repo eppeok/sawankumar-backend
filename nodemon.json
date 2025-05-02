@@ -1,0 +1,17 @@
+{
+  "ignore": [
+    "token.json",
+    "*.log",
+    "node_modules/",
+    ".git/",
+    "data/",
+    "logs/"
+  ],
+  "watch": [
+    "src/",
+    "index.js",
+    "package.json"
+  ],
+  "ext": "js,json,env",
+  "verbose": true
+} 
