@@ -3,6 +3,9 @@ const path = require('path');
 const axios = require('axios');
 const mongoose = require('mongoose');
 const Token = require('../models/Token');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const TOKEN_FILE_PATH = path.join(__dirname, '../../token.json');
 const GHL_LOCATION_ID = 'dsWjBGIxUq1LzZXzCB9c';
