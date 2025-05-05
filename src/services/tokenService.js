@@ -175,8 +175,8 @@ const refreshAccessToken = async () => {
         const response = await axios.post(
             'https://services.leadconnectorhq.com/oauth/token',
             new URLSearchParams({
-                client_id: process.env.GOHIGHLEVEL_CLIENT_ID,
-                client_secret: process.env.GOHIGHLEVEL_CLIENT_SECRET,
+                client_id: process.env.CLIENT_ID,
+                client_secret: process.env.CLIENT_SECRET,
                 grant_type: 'refresh_token',
                 refresh_token: tokenData.refreshToken
             }),
